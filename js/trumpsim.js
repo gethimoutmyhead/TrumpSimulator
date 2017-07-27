@@ -1,5 +1,5 @@
-popularityScore = 50;
-senateSupport = 50;
+popularityScore = 70;
+senateSupport = 70;
 impeachmentTimer = 100; //measured in seconds, when time reaches zero, the game is over, and player loses
 impeachmentTimerMax = 100; 
 
