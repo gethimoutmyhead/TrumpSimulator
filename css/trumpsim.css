@@ -1,0 +1,29 @@
+.underBar{
+    width: 200px;
+    background-color: grey;
+}
+.underWallBar{
+    width: 600px;
+    background-color: #98785e;
+}
+
+#popularityBar{
+    width: 100px;
+    height: 35px;
+    background-color: #7985f1;
+}
+#senateSupportBar{
+    width: 100px;
+    height: 35px;
+    background-color: #5f1309;
+}
+#impeachmentBar{
+    width: 200px;
+    height: 35px;
+    background-color: #ff7e2c;
+}
+#wallBar{
+    width: 0px;
+    height: 35px;
+    background-color: #4b4b49;
+}

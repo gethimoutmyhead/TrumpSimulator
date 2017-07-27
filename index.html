@@ -1,0 +1,41 @@
+<html>
+    <header>
+        <link rel="stylesheet" href="css/trumpsim.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript" src="js/trumpsim.js"></script>
+    </header>
+    <body onload="setInterval(mainloop, 1000)">
+    
+        <div id="message"></div>
+
+        <div>
+            Public Popularity: <div id="popularityscore"></div>
+            <div class="underBar">
+                <div id="popularityBar"></div>
+            </div>
+            Senate support: <div id="senatesupport"></div>
+            <div class="underBar">
+                <div id="senateSupportBar"></div>
+            </div>
+            Time to Impeachment: <div id="impeachmentscore"></div>
+            <div class="underBar">
+                <div id="impeachmentBar"></div>
+            </div>
+            Wall Progress: <div id="wallscore"></div>
+            <div class="underWallBar">
+                <div id="wallBar"></div>
+            </div>
+            Bill on Table: <div id="currentBill"></div>
+            <div id="latestEvent"></div>
+            
+            
+
+        </div>
+        <button onclick="Veto()">Veto</button>
+        <button onclick="ApproveBill()">Approve</button>
+        <button onclick="FireSomeone()">Fire someone</button>
+        <button onclick="PardonRecuse()">Pardon / Recuse</button>
+        <button onclick="Tweet()">Tweet!</button>
+    </body>
+    
+</html>
