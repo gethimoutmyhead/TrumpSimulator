@@ -1,6 +1,7 @@
 var gameTimers;     //monitors the setInterval instance to run the game
 var gameState;      //0 is game over, 1 is running, 2 is paused
 var scoreText;
+//var newBill;
 
 popularityScore = 70;
 senateSupport = 70;
@@ -74,8 +75,8 @@ totalTweetList = 4;
 
 totalStaffNames = 5;
 
-selectNewBill();
-freshGame();
+//selectNewBill();
+//freshGame();
 
 function preload() {
     game.load.image('table', 'assets/images/ResoluteDesk.jpg');
@@ -106,10 +107,18 @@ function create() {
     twitterPhone.events.onInputDown.add(Tweet, this);
     
     newBill = game.add.sprite(240,250, 'bill');
-    billText = game.add.text(270,320, nextBillString,{ fontSize: '12px', fill: '#000000', wordWrap: true, wordWrapWidth: 160  } );
     
-    trumpSignature = game.add.sprite(250, 480, 'trumpSig');
-    vetoStamp = game.add.sprite(340, 480, 'vetoStamp');
+    billLeft = game.add.tween(newBill);
+    billLeft.to({ x: -200 }, 1000, 'Linear', false, 0);
+    billLeft.onComplete.add(selectNewBill, this);
+    
+    billUp = game.add.tween(newBill);
+    billUp.to({y: 250}, 1000, 'Linear', false, 0);
+    
+    billText = game.add.text(newBill.x + 30, (newBill.y + 70), nextBillString,{ fontSize: '12px', fill: '#000000', wordWrap: true, wordWrapWidth: 160  } );
+    
+    trumpSignature = game.add.sprite((newBill.x + 10), (newBill.y + 230), 'trumpSig');
+    vetoStamp = game.add.sprite((newBill.x + 100), (newBill.y + 230), 'vetoStamp');
     
     trumpSignature.inputEnabled = true;
     vetoStamp.inputEnabled = true;
@@ -123,9 +132,20 @@ function create() {
     tweetMessage = game.add.text(665, 465, "Covfefe is not a real word. Made it up!", { fontSize: '10px', fill: '#000000', wordWrap: true, wordWrapWidth: 120  } )
     twitterBubble.alpha = 0;
     tweetMessage.alpha = 0;
+    
+    freshGame();
 }
 
 function update() {
+    trumpSignature.x = newBill.x + 10;
+    trumpSignature.y = newBill.y + 230;
+    
+    vetoStamp.x = newBill.x + 100;
+    vetoStamp.y = newBill.y + 230;
+    
+    billText.x = newBill.x + 30;
+    billText.y = newBill.y + 70;
+    
     scoreText.text = "Impeachment " + impeachmentTimer + "\nPopularity Score " + popularityScore + "\nSenate Support " + senateSupport + "\nWall Timer " + wallCompletionTimer;
     billText.text = nextBillString;
     if (impeachmentTimer <= 0){
@@ -133,6 +153,7 @@ function update() {
         gameOver();
 
     }
+
     
     if (wallCompletionTimer <= 0){
         scoreText.text = scoreText.text + "\nThe wall is complete. America is now Great Again!";
@@ -229,7 +250,8 @@ function Veto(){
         popularityScore += effectOfBillOnPopularity * billType;
         senateSupport -= effectOfBillOnSenate * billType;
 
-        selectNewBill();
+        billLeft.start();
+        //selectNewBill();
     }
     
 }
@@ -238,13 +260,20 @@ function ApproveBill(){
         popularityScore -= effectOfBillOnPopularity * billType;
         senateSupport += effectOfBillOnSenate * billType;
 
-        selectNewBill();
+        billLeft.start();
+        //selectNewBill();
+ 
     }
 }
 
 function selectNewBill(){
-    newBill = Math.random();
-    if (newBill > 0.5){
+    
+    newBill.x = 240;
+    newBill.y = 600;
+    
+    billUp.start();
+    newBilltoChoose = Math.random();
+    if (newBilltoChoose > 0.5){
         billType = -1;  
         billSelection = randomInteger(totalLeftBills);
         nextBillString = LeftBillsToPass[billSelection];
