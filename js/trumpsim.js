@@ -1,6 +1,9 @@
 var gameTimers;     //monitors the setInterval instance to run the game
 var gameState;      //0 is game over, 1 is running, 2 is paused
 var scoreText;
+var PopularityText;
+var SenateText;
+
 //var newBill;
 
 popularityScore = 70;
@@ -42,6 +45,7 @@ var RightBillsToPass = new Array;
 var LeftBillsToPass = new Array;
 var namesOfStaff = new Array;
 var TweetList = new Array;
+var whiteHouseStaff = new Array();
 
 RightBillsToPass[0] = "Less healthcare for old people";
 RightBillsToPass[1] = "Guns for school children";
@@ -59,21 +63,44 @@ LeftBillsToPass[4] = "accept refugees from Bahrain";
 LeftBillsToPass[5] = "reduce university fees";
 totalLeftBills = 6;
 
-
+/**
 namesOfStaff[0] = "FBI Director James Comey";
+namesOfStaff[0].articleTitle = "FBI Director James Comey has been fired!"
+namesOfStaff[0].blurb = "Delays in Russia Investigation";
+
+
+namesOfStaff[0] = {staff'FBI Director James Comey'}
 namesOfStaff[1] = "Attorney General Jeff Sessions";
-namesOfStaff[2] = "Senator John McCain";
-namesOfStaff[3] = "First Lady Melania Trump";
-namesOfStaff[4] = "Senator Bernie Sanders";
+namesOfStaff[1].articleTite = "Attorney General Jeff Sessions has been recused!";
+namesOfStaff[1].blurb = "Can't testify in Russia probe";
+
+namesOfStaff[2] = "First Lady Melania Trump";
+namesOfStaff[2].articleTite = "Melania Trump fired!";
+namesOfStaff[2].blurb = "Nobody realized she first lady on payroll";
+
+
+namesOfStaff[3] = "Jared Kushner";
+namesOfStaff[3].articleTitle = "Jared Kushner Presidential Pardon!";
+namesOfStaff[3].blurb = "Russia links ignored";
+
+**/
+
+
+whiteHouseStaff[0] = {staffName: 'FBI Director James Comey', articleTitle: 'FBI Director James Comey has been fired!', blurb: 'Delays in Russia Investigation' };
+whiteHouseStaff[1] = {staffName: 'Attorney General Jeff Sessions', articleTitle: 'Attorney General Jeff Sessions recused himself!', blurb: 'Trump denies baking him cookies' };
+whiteHouseStaff[2] = {staffName: 'First Lady Melania Trump', articleTitle: 'Melania Trump fired!', blurb: 'nobody realized first lady on payroll' };
+whiteHouseStaff[3] = {staffName: 'Jared Kushner', articleTitle: 'Jared Kushner Presidential Pardon!', blurb: 'Russia links ignored' };
+
+totalStaffNames = 4;
 
 TweetList[0] = "With the news covfefe";
 TweetList[1] = "I am doing a much better job than President Obama could ever do!";
 TweetList[2] = "Maybe its time to start investigating Clinton Server";
 TweetList[3] = "Mexicans are responsible for gun violence!";
 TweetList[4] = "Rumors of Russia Investigation Fake NEWS!";
-totalTweetList = 4;
+totalTweetList = 5;
 
-totalStaffNames = 5;
+
 
 //selectNewBill();
 //freshGame();
@@ -87,6 +114,13 @@ function preload() {
     game.load.image('trumpSig', 'assets/images/trumpsignature.png');
     game.load.image('vetoStamp', 'assets/images/veto.png');
     game.load.image('twitterbubble', 'assets/images/twitterbubble.png');
+    game.load.image('trumpHead', 'assets/images/TrumpHead.png');
+    game.load.image('newspaper', 'assets/images/newsbreak.png');
+    game.load.image('trumpWall', 'assets/images/trumpwall.png');
+    game.load.image('mexicUSMap', 'assets/images/mexicusA.png');
+    game.load.image('buildbutton', 'assets/images/buildbutton.png');
+    
+    
     
     
 }
@@ -97,14 +131,19 @@ function create() {
     twitterPhone = game.add.sprite(600,500, 'twitterPhone');
     firePhone = game.add.sprite(30,420,'firePhone');
     imac = game.add.sprite(450,225,'iMac');
-    scoreText = game.add.text(470,245, 'score:', { fontSize: '12px', fill: '#FFFFFF' });
+    scoreText = game.add.text(470,445, 'score:', { fontSize: '12px', fill: '#FFFFFF' });
+    popularityText = game.add.text(470,245,'Popularity',{ fontSize: '12px', fill: '#FFFFFF' });
 
     
     firePhone.inputEnabled = true;
-    firePhone.events.onInputDown.add(PardonRecuse, this);
+    firePhone.events.onInputDown.add(FireSomeone, this);
     
     twitterPhone.inputEnabled = true;
     twitterPhone.events.onInputDown.add(Tweet, this);
+    
+    buildButton = game.add.sprite(300,350,'buildbutton');
+    buildButton.inputEnabled = true;
+    buildButton.events.onInputDown.add(buildWall, this);
     
     newBill = game.add.sprite(240,250, 'bill');
     
@@ -129,14 +168,52 @@ function create() {
     vetoStamp.events.onInputDown.add(Veto, this);
     
     twitterBubble = game.add.sprite(600,450, 'twitterbubble')
-    tweetMessage = game.add.text(665, 465, "Covfefe is not a real word. Made it up!", { fontSize: '10px', fill: '#000000', wordWrap: true, wordWrapWidth: 120  } )
+    tweetMessage = game.add.text(twitterBubble.x + 60, twitterBubble.y + 10, "Covfefe is not a real word. Made it up!", { fontSize: '10px', fill: '#000000', wordWrap: true, wordWrapWidth: 120  } )
     twitterBubble.alpha = 0;
     tweetMessage.alpha = 0;
+    
+    trumpHead = game.add.sprite(550,260,'trumpHead');
+    trumpHead.anchor.setTo(0.5,0.5);
+    //popularityBar = game.add.graphics();
+    //g.drawRect
+    
+    trumpHeadMove = game.add.tween(trumpHead);
+    
+    trumpHeadMove.to({x: 550 + (popularityScore / 100) * 200}, 1000, 'Linear', false, 0);
+    //trumpHeadMove.onComplete.add(function(){trumpHeadMove.stop()}, this);
+    
+    
+    //impeachBar = new Phaser.group(game);
+    impeachText = game.add.text(0,0,"Impeachment",{ fontSize: '12px', fill: '#000000', wordWrap: true, wordWrapWidth: 160  });
+    
+    newspaper = game.add.sprite(-300,0,'newspaper');
+    newspaper.scale.setTo(0.75);
+    newsHeadlineText = game.add.text(newspaper.x + 10, newspaper.y + 50, "Someone got fired!", { fontSize: '16px', fill: '#000000', wordWrap: true, wordWrapWidth: 180  });
+    newsHeadlineText.x = (newspaper.width - newsHeadlineText.width) / 2 + newspaper.x;
+    newsBlurb = game.add.text(newspaper.x + 10, newspaper.y + 80, "No idea what the impact will be although it's all just a bit much isn't it?",{ fontSize: '10px', fill: '#000000', wordWrap: true, wordWrapWidth: 180  } )
+    newsBlurb.x = (newspaper.width - newsBlurb.width) / 2 + newspaper.x;
+    newsBlurb.y = newspaper.y + newsHeadlineText.height + 10;
+    
+    newsPaperScrollAcross = game.add.tween(newspaper);
+    newsPaperScrollAcross.to({x: 800}, 10000, 'Linear', false, 0);
+    newsPaperScrollAcross.onComplete.add(function(){newspaper.x = -300});
+    
+    mexicUSMap = game.add.sprite(250,80,'mexicUSMap');
+    mexicUSMap.scale.setTo(0.5);
+    
+    trumpWall = game.add.sprite(mexicUSMap.x,mexicUSMap.y + 50,'trumpWall');
+    trumpWall.scale.setTo(0.5);
+    
+    wallCrop = new Phaser.Rectangle (0,0,trumpWall.width,42);
+    trumpWall.crop(wallCrop);
     
     freshGame();
 }
 
 function update() {
+    
+
+    
     trumpSignature.x = newBill.x + 10;
     trumpSignature.y = newBill.y + 230;
     
@@ -146,7 +223,14 @@ function update() {
     billText.x = newBill.x + 30;
     billText.y = newBill.y + 70;
     
-    scoreText.text = "Impeachment " + impeachmentTimer + "\nPopularity Score " + popularityScore + "\nSenate Support " + senateSupport + "\nWall Timer " + wallCompletionTimer;
+    newsHeadlineText.x = (newspaper.width - newsHeadlineText.width) / 2 + newspaper.x;
+    newsBlurb.x = (newspaper.width - newsBlurb.width) / 2 + newspaper.x;
+    newsBlurb.y = newspaper.y + newsHeadlineText.height + 50;
+    
+    wallCrop.width = (1 - (wallCompletionTimer / 300)) * 550;
+    trumpWall.updateCrop();
+    
+    scoreText.text = "Popularity" + popularityScore + "\nSenate Support " + senateSupport + "\nWall Timer " + wallCompletionTimer+ "Impeachment " + impeachmentTimer;
     billText.text = nextBillString;
     if (impeachmentTimer <= 0){
         scoreText.text = scoreText.text + "\nGame Over. You were impeached!";
@@ -196,7 +280,7 @@ function mainloop(){
     document.getElementById("wallscore").textContent = wallCompletionTimer;
 
     **/
-    document.getElementById("currentBill").textContent = nextBillString;
+    //document.getElementById("currentBill").textContent = nextBillString;
     
     popularityBarLength = popularityScore / maxPopularity * 200 + "px";
     $("#popularityBar").animate({width: popularityBarLength}, timeForBarChange);
@@ -239,7 +323,7 @@ function mainloop(){
         
         
         
-        document.getElementById("message").textContent = finalMessage;
+        //document.getElementById("message").textContent = finalMessage;
     }
 
     
@@ -247,8 +331,10 @@ function mainloop(){
 
 function Veto(){
     if (gameState == 1){
-        popularityScore += effectOfBillOnPopularity * billType;
-        senateSupport -= effectOfBillOnSenate * billType;
+        //popularityScore += effectOfBillOnPopularity * billType;
+        changePopularity(effectOfBillOnPopularity * billType);
+        changeSenateSupport(-effectOfBillOnSenate * billType);
+        //senateSupport -= effectOfBillOnSenate * billType;
 
         billLeft.start();
         //selectNewBill();
@@ -257,13 +343,35 @@ function Veto(){
 }
 function ApproveBill(){
     if (gameState == 1){
-        popularityScore -= effectOfBillOnPopularity * billType;
-        senateSupport += effectOfBillOnSenate * billType;
+        //popularityScore -= effectOfBillOnPopularity * billType;
+        changePopularity(-effectOfBillOnPopularity * billType);
+        changeSenateSupport(effectOfBillOnSenate * billType);
+        //senateSupport += effectOfBillOnSenate * billType;
 
         billLeft.start();
         //selectNewBill();
  
     }
+}
+
+function changePopularity(modifier){
+    popularityScore += modifier;
+    
+    popularityScore = valBetweenAlt(popularityScore, 0, maxPopularity);
+    
+    headXPos = 550 + (popularityScore / 100 * 200)
+    trumpHeadMove = game.add.tween(trumpHead);
+    //trumpHeadMove.stop();
+    trumpHeadMove.to({x: 550 + (popularityScore / 100) * 200}, 1000, 'Linear', false, 0);
+    trumpHeadMove.onComplete.add(function(){trumpHeadMove.stop()}, this);
+    trumpHeadMove.start();
+    
+}
+
+function changeSenateSupport(modifier){
+    senateSupport += modifier;
+    senateSupport = valBetweenAlt(senateSupport, 0, maxSenateSupport);
+   
 }
 
 function selectNewBill(){
@@ -291,16 +399,25 @@ function selectNewBill(){
 function FireSomeone(){
     if (gameState == 1){
         personSelection = randomInteger(totalStaffNames);
-        personToFire = namesOfStaff[personSelection];
+        personToFire = whiteHouseStaff[personSelection].staffName;
 
         impeachmentTimer += fireOrRecuseImpeachmentDelay;
         fireOrRecuseImpeachmentDelay -= 10;
-        popularityScore = Math.floor(popularityScore / 2);
+        //popularityScore = Math.floor(popularityScore / 2);
+        changePopularity(-Math.floor(popularityScore / 2));
         senateSupport = Math.floor(senateSupport / 2);
 
+        newsHeadlineText.text = whiteHouseStaff[personSelection].articleTitle;
+        newsBlurb.text = whiteHouseStaff[personSelection].blurb;
+        newspaper.x = -150;
+        newsPaperScrollAcross.start();
+        
+        /**
         document.getElementById("latestEvent").textContent = "BREAKING NEWS! " + personToFire +  " has been fired!";
         $('#latestEvent').show();
         $('#latestEvent').fadeOut(timeForNewsFade);
+        **/
+        
     }
 }
 
@@ -320,12 +437,16 @@ function PardonRecuse(){
 
         impeachmentTimer += fireOrRecuseImpeachmentDelay;
         fireOrRecuseImpeachmentDelay -= 10;
-        popularityScore = Math.floor(popularityScore / 2);
+
+        changePopularity(-Math.floor(popularityScore / 2));
         senateSupport = Math.floor(senateSupport / 2);
 
+        /**
         document.getElementById("latestEvent").textContent = "BREAKING NEWS! " + nameOfPersonSelected +  " has been " + pardonOrRecuseDecision;
         $('#latestEvent').show();
         $('#latestEvent').fadeOut(timeForNewsFade);
+        **/
+        
     }
 }
 
@@ -334,7 +455,8 @@ function Tweet(){
         tweetSelection = randomInteger(totalTweetList);
         tweetMessage.text = TweetList[tweetSelection];
 
-        popularityScore += effectOfTweetOnPopularity;
+        //popularityScore += effectOfTweetOnPopularity;
+        changePopularity(effectOfTweetOnPopularity);
         senateSupport += effectOfTweetOnSenate;
 
         effectOfTweetOnPopularity -= 2; //every tweet gradually becomes less effective on popularity until it has a negative effect
@@ -350,9 +472,12 @@ function Tweet(){
         bubbleFade.start();
         tweetFade.start();
         
+        /**
         document.getElementById("latestEvent").textContent = "Latest Tweet: " + tweetMessage.text;
         $('#latestEvent').show();
         $('#latestEvent').fadeOut(timeForNewsFade);
+        **/
+        
     }
 }
 
@@ -367,6 +492,10 @@ function valBetweenAlt(val, min, max) {
 function randomInteger(maxVal){
     randomInt = Math.floor(Math.random() * maxVal);
     return (randomInt);
+}
+
+function buildWall(){
+    wallCompletionTimer -= wallBuildRate;
 }
 
 function freshGame(){
@@ -410,6 +539,7 @@ function freshGame(){
     gameTimers = setInterval(mainVariableCountDown,1000);
     selectNewBill();
     gameState = 1;
+    trumpHeadMove.start();
 }
 
 function mainVariableCountDown(){
